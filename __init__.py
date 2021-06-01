@@ -19,8 +19,7 @@ def check_input_answ(question, poss_response):
             print('This value entered is not valid, if you you want to quit leave blank')
             print(question)
             usr_in = input()
-    if not usr_in:
-        return False
+    return False
 
 
 def main():
