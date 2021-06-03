@@ -1,18 +1,19 @@
 from classes.bill import Bill
-
-TYPE_PLAY = ['estratto', 'ambata', 'ambo', 'terno', 'quaterna', 'cinquina']
-NUMBERS = [n for n in range(1, 11)]
-NAME_CITIES = ['bari', 'cagliari', 'firenze', 'genova', 'roma', 'palermo', 'torino', 'venezia', 'milano', 'napoli', 'tutte']
+from classes.extraction import Extraction
+from classes.lotto import Lotto
 
 
 def check_input_answ(question, poss_response):
     print(question)
     usr_in = input()
     while usr_in:
-        if poss_response is TYPE_PLAY or poss_response is NAME_CITIES:
-            usr_in = usr_in.lower()
+        if poss_response is Lotto.NUMBERS:
+            try:
+                usr_in = int(usr_in)
+            except ValueError:
+                pass
         else:
-            usr_in = int(usr_in)
+            usr_in = usr_in.lower()
         if usr_in in poss_response:
             return usr_in
         else:
@@ -39,14 +40,14 @@ def main():
                     if _ == 1:
                         question = f'Which type of play for the bill number {i} (estratto, ambo, terno, quaterna, ' \
                                    f'cinquina)? '
-                        poss_response = TYPE_PLAY
+                        poss_response = Lotto.TYPE_PLAY
                     elif _ == 2:
                         question = f'How many number (1 to 10) for this play?'
-                        poss_response = NUMBERS
+                        poss_response = Lotto.NUMBERS
                     else:
                         question = f'Which city (aka ruota)? (Bari, Cagliari, Firenze, Genova, Milano, Napoli, Palermo, ' \
                                    f'Roma, Torino, Venezia or Tutte )? '
-                        poss_response = NAME_CITIES
+                        poss_response = Lotto.NAME_CITIES + ['tutte']
                     # insert into the answer's list the return value of check_input_answ
                     answers.append(check_input_answ(question, poss_response))
                 # create a Bill Object only there are not False value in the answer's list (e.g blank value)
@@ -55,22 +56,45 @@ def main():
                     bills.append(bill)
                 # if the User decide to leave blank some question, don't create Bill and ask for what he decide to do
                 else:
-                    print('You haven\'t answer all question, you want to quit and Cancel all bills that you have? Y/n')
+                    print('You haven\'t answer all questions, you want to quit and Cancel all bills that you have? Y/n')
                     cancel_input = input()
                     if not cancel_input or cancel_input.lower() == 'y':
                         quit()
                     else:
-                        # the possibility to print out your bills up to now
-                        print('You want to print out your bills that you have up to now? Y/n')
+                        # the possibility to print out your Bills up to now
+                        print('You want to print out your bills that you have up to now and check if you have win? Y/n')
                         print_bills = input()
                         if not print_bills or print_bills.lower() == 'y':
-                            for bill in bills:
-                                print(bill)
-                        # quit after
-                        quit()
-            # print out all Bills Objects
+                            break
+                        else:
+                            quit()
+
+            # print out all your Bills Objects
+            print('Your bill/s is/are: \n')
             for bill in bills:
                 print(bill)
+
+            # init a dict for the Extractions Objects
+            extractions = {}
+            print('The Extractions are: \n')
+
+            # create the Extraction Objects and key with name of a city
+            for i in range(len(Lotto.NAME_CITIES)):
+                ext = Extraction(Lotto.NAME_CITIES[i])
+                extractions[Lotto.NAME_CITIES[i]] = ext
+                print(ext)
+
+            # create a Lotto Object and retrieve the winner wheels
+            winner_wheels = Lotto(bills, extractions).winner_wheels()
+            print(f'{"#" * 70}\n')
+            for k_winner in winner_wheels:
+                if len(winner_wheels[k_winner]) > 0:
+                    print(f'YOU HAVE WIN! with The Bill number {k_winner}:\n')
+                    for win in winner_wheels[k_winner]:
+                        print(f'Play type: {win[0]}, City/Wheel: {win[1]}, Winner Number/s {win[2]}\n')
+                else:
+                    print(f'Sorry, you have lose with the bill number {k_winner}\n\n')
+
         except ValueError:
             print('Your value entered is not valid, if you you want to quit leave blank')
             main()
