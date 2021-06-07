@@ -7,14 +7,14 @@ def check_input_answ(question, poss_response):
     print(question)
     usr_in = input()
     while usr_in:
-        if poss_response is Lotto.NUMBERS:
+        if poss_response is Lotto.NUMBERS or poss_response == 'all numbers':
             try:
                 usr_in = int(usr_in)
             except ValueError:
-                pass
+                check_input_answ(question, poss_response)
         else:
             usr_in = usr_in.lower()
-        if usr_in in poss_response:
+        if poss_response == 'all numbers' or usr_in in poss_response:
             return usr_in
         else:
             print('This value entered is not valid, if you you want to quit leave blank')
@@ -36,7 +36,7 @@ def main():
             for i in range(1, num_bills + 1):
                 # create a list of possible answers
                 answers = []
-                for _ in range(1, 4):
+                for _ in range(1, 5):
                     if _ == 1:
                         question = f'Which type of play for the bill number {i} (estratto, ambo, terno, quaterna, ' \
                                    f'cinquina)? '
@@ -44,15 +44,18 @@ def main():
                     elif _ == 2:
                         question = f'How many number (1 to 10) for this play?'
                         poss_response = Lotto.NUMBERS
-                    else:
+                    elif _ == 3:
                         question = f'Which city (aka ruota)? (Bari, Cagliari, Firenze, Genova, Milano, Napoli, Palermo, ' \
                                    f'Roma, Torino, Venezia or Tutte )? '
                         poss_response = Lotto.NAME_CITIES + ['tutte']
+                    else:
+                        question = f'How much money?'
+                        poss_response = 'all numbers'
                     # insert into the answer's list the return value of check_input_answ
                     answers.append(check_input_answ(question, poss_response))
                 # create a Bill Object only there are not False value in the answer's list (e.g blank value)
                 if False not in answers:
-                    bill = Bill(answers[0], answers[1], answers[2])
+                    bill = Bill(answers[0], answers[1], answers[2], answers[3])
                     bills.append(bill)
                 # if the User decide to leave blank some question, don't create Bill and ask for what he decide to do
                 else:
@@ -70,13 +73,13 @@ def main():
                             quit()
 
             # print out all your Bills Objects
-            print('Your bill/s is/are: \n')
+            print(f'\033[96mYour bill/s is/are: \n')
             for bill in bills:
                 print(bill)
 
             # init a dict for the Extractions Objects
             extractions = {}
-            print('The Extractions are: \n')
+            print(f'\033[0mThe Extractions are: \n')
 
             # create the Extraction Objects and key with name of a city
             for i in range(len(Lotto.NAME_CITIES)):
@@ -86,14 +89,14 @@ def main():
 
             # create a Lotto Object and retrieve the winner wheels
             winner_wheels = Lotto(bills, extractions).winner_wheels()
-            print(f'{"#" * 70}\n')
             for k_winner in winner_wheels:
                 if len(winner_wheels[k_winner]) > 0:
-                    print(f'YOU HAVE WIN! with The Bill number {k_winner}:\n')
+                    print(f'\033[92mYOU HAVE WIN! with The Bill number {k_winner}:\n')
                     for win in winner_wheels[k_winner]:
-                        print(f'Play type: {win[0]}, City/Wheel: {win[1]}, Winner Number/s {win[2]}\n')
+                        print(f'\033[92mPlay type: {win[0]}\t City/Wheel: {win[1]}\t Winner Number/s {win[2]}\t Gross Money '
+                              f'Wins {round(win[3], 2)}\t Net Money Wins {round(win[3] - win[3]* 0.08, 2)} \n')
                 else:
-                    print(f'Sorry, you have lose with the bill number {k_winner}\n\n')
+                    print(f'\033[93mSorry, you have lose with the bill number {k_winner}\n')
 
         except ValueError:
             print('Your value entered is not valid, if you you want to quit leave blank')
