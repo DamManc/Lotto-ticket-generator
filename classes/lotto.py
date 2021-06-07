@@ -22,9 +22,11 @@ class Lotto:
         self.extractions = extractions
 
     def winner_wheels(self):
+        # create a dict of list for each bill, with bill.id as a key
         winner_wheels = {bill.id: [] for bill in self.bills}
         for extraction in self.extractions:
             for bill in self.bills:
+                # retrieve a winner nums as a list
                 winner_nums = check_play_numbers(bill.numbers, bill.play_type, self.extractions[extraction].numbers)
                 if (winner_nums and bill.city == 'tutte') or (winner_nums and bill.city == self.extractions[extraction].city):
                     winner_wheels[bill.id].append([bill.play_type, self.extractions[extraction].city, winner_nums])
