@@ -1,18 +1,3 @@
-def check_play_numbers(bill_numbers, bill_play_type, money_bet, extraction_numbers):
-    count_win_numbers = 0
-    winner_nums = []
-    for bill_n in bill_numbers:
-        for ext_n in extraction_numbers:
-            if bill_n == ext_n:
-                winner_nums.append(bill_n)
-                count_win_numbers += 1
-    for k in Lotto.TYPE_PLAY:
-        if k == bill_play_type and Lotto.TYPE_PLAY[k] == count_win_numbers:
-            money_win = money_bet * Lotto.GROSS_WINNERS_DATA[len(bill_numbers)][count_win_numbers-1]
-            return winner_nums, money_win
-    return False, 0
-
-
 class Lotto:
     TYPE_PLAY = {'estratto': 1, 'ambo': 2, 'terno': 3, 'quaterna': 4, 'cinquina': 5}
     NUMBERS = [n for n in range(1, 11)]
@@ -27,13 +12,28 @@ class Lotto:
         self.bills = bills
         self.extractions = extractions
 
+    @staticmethod
+    def check_play_numbers(bill_numbers, bill_play_type, money_bet, extraction_numbers):
+        count_win_numbers = 0
+        winner_nums = []
+        for bill_n in bill_numbers:
+            for ext_n in extraction_numbers:
+                if bill_n == ext_n:
+                    winner_nums.append(bill_n)
+                    count_win_numbers += 1
+        for k in Lotto.TYPE_PLAY:
+            if k == bill_play_type and Lotto.TYPE_PLAY[k] == count_win_numbers:
+                money_win = money_bet * Lotto.GROSS_WINNERS_DATA[len(bill_numbers)][count_win_numbers - 1]
+                return winner_nums, money_win
+        return False, 0
+
     def winner_wheels(self):
         # create a dict of list for each bill, with bill.id as a key
         winner_wheels = {bill.id: [] for bill in self.bills}
         for extraction in self.extractions:
             for bill in self.bills:
                 # retrieve a winner nums and money as a list and numeric value
-                winner_nums, money_win = check_play_numbers(bill.numbers, bill.play_type, bill.money_bet, self.extractions[extraction].numbers)
+                winner_nums, money_win = self.check_play_numbers(bill.numbers, bill.play_type, bill.money_bet, self.extractions[extraction].numbers)
                 if winner_nums and bill.city == self.extractions[extraction].city:
                     winner_wheels[bill.id].append([bill.play_type, self.extractions[extraction].city, winner_nums, money_win])
                 elif winner_nums and bill.city == 'tutte':
