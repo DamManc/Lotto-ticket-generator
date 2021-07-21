@@ -2,7 +2,6 @@ import random
 
 
 class Extraction:
-    counter = 0
 
     def __init__(self, city, numbers=5):
         self.city = city
